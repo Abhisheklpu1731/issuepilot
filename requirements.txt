@@ -1,0 +1,7 @@
+fastapi>=0.110
+uvicorn[standard]
+httpx
+scikit-learn
+numpy
+sentence-transformers  # optional: better duplicate detection; falls back to TF-IDF if missing
+pytest

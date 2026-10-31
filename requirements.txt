@@ -3,5 +3,5 @@ uvicorn[standard]
 httpx
 scikit-learn
 numpy
-sentence-transformers  # optional: better duplicate detection; falls back to TF-IDF if missing
+streamlit>=1.40
 pytest

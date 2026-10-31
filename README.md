@@ -22,10 +22,24 @@ GitHub "issue opened" webhook ──▶ verify HMAC signature
                      GitHub API: post comment + apply labels
 ```
 
-## Quick start
+## Demo UI
+
+`streamlit_app.py` is a web interface: enter any public repo, and it learns that repo's labels, then triages an issue you type. It shows suggested labels with confidence, linked possible duplicates and an editable draft reply. There's also an approval queue (a dry run that never posts to GitHub) and a backtest of label accuracy on the repo's own history.
+
+**Live demo:** _link added after deployment_
 
 ```bash
 pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+Deploy free on [Streamlit Community Cloud](https://share.streamlit.io): New app → this repo → main file `streamlit_app.py`. Optional secrets: `GITHUB_TOKEN` (higher GitHub rate limit) and `GROQ_API_KEY` (LLM-written drafts).
+
+## Quick start (API)
+
+```bash
+pip install -r requirements.txt
+pip install -r requirements-embeddings.txt   # optional: embedding-based duplicate search
 cp .env.example .env
 
 # 1. Learn from a repo's history (any public repo works)

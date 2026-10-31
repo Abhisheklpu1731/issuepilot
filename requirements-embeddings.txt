@@ -1,0 +1,1 @@
+sentence-transformers  # embedding-based duplicate search; without it IssuePilot uses TF-IDF

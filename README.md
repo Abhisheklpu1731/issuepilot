@@ -26,7 +26,7 @@ GitHub "issue opened" webhook ──▶ verify HMAC signature
 
 `streamlit_app.py` is a web interface: enter any public repo, and it learns that repo's labels, then triages an issue you type. It shows suggested labels with confidence, linked possible duplicates and an editable draft reply. There's also an approval queue (a dry run that never posts to GitHub) and a backtest of label accuracy on the repo's own history.
 
-**Live demo:** _link added after deployment_
+**Live demo:** [issuepilot.streamlit.app](https://issuepilot.streamlit.app)
 
 ![Triage view: suggested labels, possible duplicates and an editable draft reply](docs/screenshots/triage.png)
 

@@ -33,7 +33,7 @@ pip install -r requirements.txt
 streamlit run streamlit_app.py
 ```
 
-Deploy free on [Streamlit Community Cloud](https://share.streamlit.io): New app → this repo → main file `streamlit_app.py`. Optional secrets: `GITHUB_TOKEN` (higher GitHub rate limit) and `GROQ_API_KEY` (LLM-written drafts).
+Deploy free on [Streamlit Community Cloud](https://share.streamlit.io): New app → this repo → main file `streamlit_app.py`. Optional secrets: `GITHUB_TOKEN` (higher GitHub rate limit), `GROQ_API_KEY` (LLM-written drafts) and `LLM_MODEL` (Groq model, e.g. `openai/gpt-oss-120b`).
 
 ## Quick start (API)
 

@@ -19,7 +19,7 @@ from app.similarity import SimilarityIndex
 st.set_page_config(page_title="IssuePilot", page_icon="🧭", layout="wide")
 
 # Optional secrets (Streamlit Cloud → App settings → Secrets)
-for key in ("GITHUB_TOKEN", "GROQ_API_KEY"):
+for key in ("GITHUB_TOKEN", "GROQ_API_KEY", "LLM_MODEL"):
     try:
         if key in st.secrets and not os.getenv(key):
             os.environ[key] = st.secrets[key]
@@ -119,7 +119,7 @@ with tab_triage:
                 st.write("No close matches.")
         with right:
             st.subheader("Draft reply")
-            st.caption("Written by an LLM (Groq)" if last["source"] == "llm" else "Template reply (add a GROQ_API_KEY secret for LLM drafts)")
+            st.caption(f"Written by an LLM ({os.getenv('LLM_MODEL') or 'Groq'})" if last["source"] == "llm" else "Template reply (add a GROQ_API_KEY secret for LLM drafts)")
             edited = st.text_area("Edit before sending to the queue", value=last["reply"], height=200, key="edit_reply")
             chosen = st.multiselect("Labels to apply", options=labeler.labels or [l for l, _ in last["labels"]],
                                     default=[l for l, _ in last["labels"]])

@@ -10,7 +10,12 @@ import os
 import httpx
 
 GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
-GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+DEFAULT_MODEL = "llama-3.1-8b-instant"
+
+
+def groq_model():
+    """Read at call time so Streamlit secrets loaded after import are picked up."""
+    return os.getenv("LLM_MODEL") or os.getenv("GROQ_MODEL") or DEFAULT_MODEL
 
 
 def template_reply(issue, labels, duplicates):
@@ -37,7 +42,7 @@ def llm_reply(issue, labels, duplicates, api_key):
     r = httpx.post(
         GROQ_URL,
         headers={"Authorization": f"Bearer {api_key}"},
-        json={"model": GROQ_MODEL, "messages": [{"role": "user", "content": prompt}], "temperature": 0.3},
+        json={"model": groq_model(), "messages": [{"role": "user", "content": prompt}], "temperature": 0.3},
         timeout=30,
     )
     r.raise_for_status()

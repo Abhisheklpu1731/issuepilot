@@ -28,6 +28,14 @@ GitHub "issue opened" webhook ──▶ verify HMAC signature
 
 **Live demo:** _link added after deployment_
 
+![Triage view: suggested labels, possible duplicates and an editable draft reply](docs/screenshots/triage.png)
+
+| Approval queue (dry run) | Backtest on the repo's own history |
+|---|---|
+| ![Approval queue](docs/screenshots/approval-queue.png) | ![Evaluation](docs/screenshots/evaluation.png) |
+
+*Screenshots run on 98 recent `streamlit/streamlit` issues. Backtest (train on the oldest 80%, test on the newest 20%, issue titles only): label **precision 0.72, recall 0.60** across 16 labels.*
+
 ```bash
 pip install -r requirements.txt
 streamlit run streamlit_app.py

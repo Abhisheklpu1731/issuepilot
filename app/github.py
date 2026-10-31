@@ -30,18 +30,35 @@ def normalize(raw):
     }
 
 
+MAX_PAGES = 10   # GitHub serves at most ~1,000 results per listing
+
+
 def fetch_issues(repo, max_issues=500):
-    """Fetch open + closed issues (pull requests excluded)."""
+    """Fetch the most recent open + closed issues, excluding pull requests.
+
+    Uses the search API with `is:issue`, so pull requests never use up pages (repos like
+    psf/requests are mostly PRs). Stops early, keeping what it has, if GitHub refuses
+    deeper pages.
+    """
     issues, page = [], 1
     with httpx.Client(headers=_headers(), timeout=30) as client:
-        while len(issues) < max_issues:
-            r = client.get(f"{API}/repos/{repo}/issues",
-                           params={"state": "all", "per_page": 100, "page": page})
+        while len(issues) < max_issues and page <= MAX_PAGES:
+            r = client.get(f"{API}/search/issues", params={
+                "q": f"repo:{repo} is:issue", "sort": "created", "order": "desc",
+                "per_page": 100, "page": page})
+            if r.status_code == 422 and issues:
+                break                          # past the pagination limit: keep what we have
+            if r.status_code in (403, 429):
+                if issues:
+                    break                      # rate limited mid-way: use what we already have
+                raise RuntimeError("GitHub rate limit reached. Wait a minute, or add a GITHUB_TOKEN secret.")
+            if r.status_code == 422:
+                raise RuntimeError(f"Repository '{repo}' not found or not public.")
             r.raise_for_status()
-            batch = r.json()
-            if not batch:
-                break
+            batch = r.json().get("items", [])
             issues += [normalize(i) for i in batch if "pull_request" not in i]
+            if len(batch) < 100:
+                break                          # last page
             page += 1
     return issues[:max_issues]
 

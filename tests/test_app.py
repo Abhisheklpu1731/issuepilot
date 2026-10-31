@@ -118,3 +118,41 @@ def test_webhook_ignores_other_actions(client):
     event = {"action": "closed", "issue": {"number": 1, "title": "x"}}
     r = client.post("/webhook/github", content=json.dumps(event), headers={"X-GitHub-Event": "issues"})
     assert "ignored" in r.json()
+
+
+def _fake_github(monkeypatch, handler):
+    import httpx
+    import app.github as gh
+    real = httpx.Client
+    monkeypatch.setattr(gh.httpx, "Client", lambda **kw: real(transport=httpx.MockTransport(handler), **kw))
+    return gh
+
+
+def _items(start, n):
+    return [{"number": i, "title": f"t{i}", "body": "", "labels": [], "html_url": "", "user": {"login": "u"}}
+            for i in range(start, start + n)]
+
+
+def test_fetch_stops_at_pagination_limit(monkeypatch):
+    import httpx
+    def handler(req):
+        page = int(req.url.params["page"])
+        return httpx.Response(422) if page > 2 else httpx.Response(200, json={"items": _items(page * 100, 100)})
+    gh = _fake_github(monkeypatch, handler)
+    assert len(gh.fetch_issues("o/r", 500)) == 200     # keeps the 2 pages it got instead of crashing
+
+
+def test_fetch_last_page_and_pr_filter(monkeypatch):
+    import httpx
+    def handler(req):
+        items = _items(1, 30) + [{**_items(99, 1)[0], "pull_request": {}}]
+        return httpx.Response(200, json={"items": items})
+    gh = _fake_github(monkeypatch, handler)
+    assert len(gh.fetch_issues("o/r", 300)) == 30
+
+
+def test_fetch_rate_limit_message(monkeypatch):
+    import httpx
+    gh = _fake_github(monkeypatch, lambda req: httpx.Response(403))
+    with pytest.raises(RuntimeError, match="rate limit"):
+        gh.fetch_issues("o/r", 100)
